@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduConnect CRM — College Admission System</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════
+     SCREEN: LOGIN
+════════════════════════════════════════════════════════ -->
+<div id="screen-login" class="screen active">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <div class="logo-icon">🎓</div>
+        <h1>EduConnect CRM</h1>
+        <p>College Admission Management System</p>
+      </div>
+      <form id="login-form" onsubmit="handleLogin(event)">
+        <div id="login-error" class="alert alert-error" style="display:none">⚠ Error</div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input id="login-email" type="email" class="form-control" placeholder="you@college.com" required autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input id="login-password" type="password" class="form-control" placeholder="Enter password" required autocomplete="current-password">
+        </div>
+        <button id="btn-login" type="submit" class="btn btn-primary btn-full" style="margin-top:0.5rem">Sign In →</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     SCREEN: SETUP PASSWORD (First Login)
+════════════════════════════════════════════════════════ -->
+<div id="screen-setup-password" class="screen">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <div class="logo-icon">🔐</div>
+        <h1>Set Your Password</h1>
+        <p>You're logging in for the first time. Please set a new password.</p>
+      </div>
+      <form id="setup-form" onsubmit="handleSetupPassword(event)">
+        <input type="hidden" id="setup-user-id">
+        <div id="setup-error" class="alert alert-error" style="display:none">⚠ Error</div>
+        <div class="alert alert-info">ℹ Your temporary password was correct. Now create your personal password.</div>
+        <div class="form-group">
+          <label>New Password</label>
+          <input id="setup-password" type="password" class="form-control" placeholder="Min. 6 characters" required minlength="6">
+        </div>
+        <div class="form-group">
+          <label>Confirm Password</label>
+          <input id="setup-confirm" type="password" class="form-control" placeholder="Repeat password" required minlength="6">
+        </div>
+        <button id="btn-setup" type="submit" class="btn btn-primary btn-full">Set Password →</button>
+        <button type="button" class="btn btn-outline btn-full" style="margin-top:0.5rem" onclick="showScreen('screen-login')">← Back to Login</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     SCREEN: FORGOT PASSWORD
+════════════════════════════════════════════════════════ -->
+<div id="screen-forgot-password" class="screen">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <div class="logo-icon">🔄</div>
+        <h1>Reset Password</h1>
+        <p>Enter your date of birth to verify and set a new password.</p>
+      </div>
+      <form id="forgot-form" onsubmit="handleForgotPassword(event)">
+        <input type="hidden" id="forgot-user-id">
+        <div id="forgot-error" class="alert alert-error" style="display:none">⚠ Error</div>
+        <div class="alert alert-info">ℹ Your DOB is used to verify your identity.</div>
+        <div class="form-group">
+          <label>Date of Birth</label>
+          <input id="forgot-dob" type="date" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label>New Password</label>
+          <input id="forgot-password" type="password" class="form-control" placeholder="Min. 6 characters" required minlength="6">
+        </div>
+        <div class="form-group">
+          <label>Confirm Password</label>
+          <input id="forgot-confirm" type="password" class="form-control" placeholder="Repeat password" required minlength="6">
+        </div>
+        <button id="btn-forgot" type="submit" class="btn btn-primary btn-full">Reset Password →</button>
+        <button type="button" class="btn btn-outline btn-full" style="margin-top:0.5rem" onclick="showScreen('screen-login')">← Back to Login</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     SCREEN: TELECALLER DASHBOARD
+════════════════════════════════════════════════════════ -->
+<div id="screen-telecaller" class="screen">
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-name"><span class="icon">🎓</span> EduConnect</div>
+        <p>Telecaller Portal</p>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-label">Menu</div>
+          <button class="nav-item active" onclick="showTelecallerDashboard()">
+            <span class="nav-icon">🏠</span> Dashboard
+          </button>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <div style="font-size:0.78rem;color:rgba(255,255,255,0.4);padding:0 0.4rem 0.5rem">Signed in as</div>
+        <div style="font-size:0.88rem;color:rgba(255,255,255,0.85);padding:0 0.4rem;font-weight:600" id="tc-sidebar-name"></div>
+      </div>
+    </aside>
+    <div class="sidebar-overlay"></div>
+
+    <!-- Main -->
+    <div class="main-content">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="btn-menu" id="btn-menu" onclick="toggleSidebar()">☰</button>
+          <span class="topbar-title">📞 My Students</span>
+        </div>
+        <div class="topbar-right">
+          <div class="profile-wrap">
+            <button class="profile-btn profile-initial" onclick="toggleProfileDropdown(event)">TC</button>
+            <div class="profile-dropdown">
+              <div class="profile-info">
+                <div class="p-name profile-name-display">User</div>
+                <div class="p-role profile-role-display">telecaller</div>
+              </div>
+              <button class="dropdown-item danger" onclick="logout()">🚪 Logout</button>
+            </div>
+          </div>
+        </div>
+      </header>
+      <main class="page-content">
+        <!-- Reminder Banner -->
+        <div id="reminder-container" style="display:none">
+          <div class="reminder-banner">
+            <div class="icon">⏰</div>
+            <div>
+              <h4>Today's Follow-up Reminders</h4>
+              <ul class="reminder-list" id="reminder-list"></ul>
+            </div>
+          </div>
+        </div>
+        <!-- Student List -->
+        <div id="tc-student-list">
+          <div class="loading-overlay"><span class="spinner spinner-dark"></span></div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     SCREEN: OFFICE DASHBOARD
+════════════════════════════════════════════════════════ -->
+<div id="screen-office" class="screen">
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-name"><span class="icon">🎓</span> EduConnect</div>
+        <p>Office Portal</p>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-label">Menu</div>
+          <button class="nav-item active" onclick="showOfficeDashboard()">
+            <span class="nav-icon">🏠</span> Dashboard
+          </button>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <div style="font-size:0.88rem;color:rgba(255,255,255,0.85);padding:0 0.4rem;font-weight:600">Office User</div>
+      </div>
+    </aside>
+    <div class="sidebar-overlay"></div>
+
+    <div class="main-content">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="btn-menu" id="btn-menu" onclick="toggleSidebar()">☰</button>
+          <span class="topbar-title">➕ Add Student</span>
+        </div>
+        <div class="topbar-right">
+          <div class="profile-wrap">
+            <button class="profile-btn profile-initial" onclick="toggleProfileDropdown(event)">OF</button>
+            <div class="profile-dropdown">
+              <div class="profile-info">
+                <div class="p-name profile-name-display">User</div>
+                <div class="p-role profile-role-display">office</div>
+              </div>
+              <button class="dropdown-item danger" onclick="logout()">🚪 Logout</button>
+            </div>
+          </div>
+        </div>
+      </header>
+      <main class="page-content">
+        <div class="page-header">
+          <h2>Add New Student</h2>
+          <p>Student data will be automatically assigned to an available telecaller.</p>
+        </div>
+        <div class="card" style="max-width:600px">
+          <div class="card-body">
+            <form id="office-student-form" onsubmit="handleAddStudentOffice(event)">
+              <div id="office-student-form-error" class="alert alert-error" style="display:none">⚠ Error</div>
+              <div class="form-group">
+                <label>Student Full Name *</label>
+                <input name="name" type="text" class="form-control" placeholder="e.g. Rahul Sharma" required>
+              </div>
+              <div class="form-group">
+                <label>Mobile Number *</label>
+                <input name="mobile" type="tel" class="form-control" placeholder="10-digit mobile number" required pattern="[0-9]{10}">
+              </div>
+              <div class="form-group">
+                <label>Present PU / Diploma College</label>
+                <input name="college" type="text" class="form-control" placeholder="e.g. St. Joseph's PU College">
+              </div>
+              <div class="form-group">
+                <label>Address</label>
+                <textarea name="address" class="form-control" rows="3" placeholder="Student's address"></textarea>
+              </div>
+              <button id="btn-add-student-office" type="submit" class="btn btn-accent btn-full">+ Add Student</button>
+            </form>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     SCREEN: ADMIN DASHBOARD
+════════════════════════════════════════════════════════ -->
+<div id="screen-admin" class="screen">
+  <div class="app-layout">
+    <!-- Admin Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-name"><span class="icon">🎓</span> EduConnect</div>
+        <p>Admin Panel</p>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-label">Main</div>
+          <button class="nav-item active" data-admin-nav="dashboard" onclick="adminNav('dashboard')">
+            <span class="nav-icon">📊</span> Dashboard
+          </button>
+        </div>
+        <div class="nav-section">
+          <div class="nav-label">Students</div>
+          <button class="nav-item" data-admin-nav="addstudent" onclick="adminNav('addstudent')">
+            <span class="nav-icon">➕</span> Add Student
+          </button>
+        </div>
+        <div class="nav-section">
+          <div class="nav-label">Users</div>
+          <button class="nav-item" data-admin-nav="adduser" onclick="adminNav('adduser')">
+            <span class="nav-icon">👤</span> Add User
+          </button>
+          <button class="nav-item" data-admin-nav="viewusers" onclick="adminNav('viewusers')">
+            <span class="nav-icon">👥</span> View Users
+          </button>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <div style="font-size:0.78rem;color:rgba(255,255,255,0.4);padding:0 0.4rem 0.3rem">Administrator</div>
+      </div>
+    </aside>
+    <div class="sidebar-overlay"></div>
+
+    <!-- Admin Main -->
+    <div class="main-content">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="btn-menu" id="btn-menu" onclick="toggleSidebar()">☰</button>
+          <span class="topbar-title" id="admin-page-title">Dashboard</span>
+        </div>
+        <div class="topbar-right">
+          <button class="btn btn-outline btn-sm" onclick="exportExcel()">⬇ Export</button>
+          <div class="profile-wrap">
+            <button class="profile-btn profile-initial" onclick="toggleProfileDropdown(event)">AD</button>
+            <div class="profile-dropdown">
+              <div class="profile-info">
+                <div class="p-name profile-name-display">Admin</div>
+                <div class="p-role profile-role-display">admin</div>
+              </div>
+              <button class="dropdown-item danger" onclick="logout()">🚪 Logout</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="page-content">
+
+        <!-- ── DASHBOARD PAGE ── -->
+        <div id="admin-dashboard" class="admin-page">
+          <div class="page-header-row">
+            <div class="page-header">
+              <h2>Overview</h2>
+              <p>Real-time status of your telecalling team</p>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="loadAdminStats()">↻ Refresh</button>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">Telecallers</div>
+              <div class="stat-value" id="admin-stat-telecallers">—</div>
+              <div class="stat-sub">Active agents</div>
+            </div>
+            <div class="stat-card accent">
+              <div class="stat-label">Total Assigned</div>
+              <div class="stat-value" id="admin-stat-total">—</div>
+              <div class="stat-sub">Students</div>
+            </div>
+            <div class="stat-card success">
+              <div class="stat-label">Completed</div>
+              <div class="stat-value" id="admin-stat-completed">—</div>
+              <div class="stat-sub">Accepted + Rejected</div>
+            </div>
+            <div class="stat-card warning">
+              <div class="stat-label">Pending</div>
+              <div class="stat-value" id="admin-stat-pending">—</div>
+              <div class="stat-sub">Awaiting call</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">Telecaller Performance <span style="font-size:0.78rem;font-weight:400;color:var(--text-muted)">Click a row to view details</span></div>
+            <div id="admin-stats-list" class="card-body">
+              <div class="loading-overlay"><span class="spinner spinner-dark"></span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── ADD STUDENT PAGE ── -->
+        <div id="admin-addstudent" class="admin-page" style="display:none">
+          <div class="page-header"><h2>Add New Student</h2><p>Student is auto-assigned to telecaller with least load.</p></div>
+          <div class="card" style="max-width:600px">
+            <div class="card-body">
+              <form id="admin-student-form" onsubmit="handleAddStudentAdmin(event)">
+                <div id="admin-student-form-error" class="alert alert-error" style="display:none">⚠ Error</div>
+                <div class="form-group">
+                  <label>Student Full Name *</label>
+                  <input name="name" type="text" class="form-control" placeholder="e.g. Priya Menon" required>
+                </div>
+                <div class="form-group">
+                  <label>Mobile Number *</label>
+                  <input name="mobile" type="tel" class="form-control" placeholder="10-digit number" required pattern="[0-9]{10}">
+                </div>
+                <div class="form-group">
+                  <label>Present PU / Diploma College</label>
+                  <input name="college" type="text" class="form-control" placeholder="e.g. Deeksha PU College">
+                </div>
+                <div class="form-group">
+                  <label>Address</label>
+                  <textarea name="address" class="form-control" rows="3" placeholder="Student's address / area"></textarea>
+                </div>
+                <button id="btn-add-student-admin" type="submit" class="btn btn-accent btn-full">+ Add Student</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── ADD USER PAGE ── -->
+        <div id="admin-adduser" class="admin-page" style="display:none">
+          <div class="page-header"><h2>Add New User</h2><p>Create a telecaller or office staff account.</p></div>
+          <div class="card" style="max-width:600px">
+            <div class="card-body">
+              <form id="add-user-form" onsubmit="handleAddUser(event)">
+                <div id="add-user-error" class="alert alert-error" style="display:none">⚠ Error</div>
+                <div class="form-group">
+                  <label>Full Name *</label>
+                  <input id="au-name" type="text" class="form-control" placeholder="Full name" required>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Email *</label>
+                    <input id="au-email" type="email" class="form-control" placeholder="user@email.com" required>
+                  </div>
+                  <div class="form-group">
+                    <label>Phone *</label>
+                    <input id="au-phone" type="tel" class="form-control" placeholder="Mobile number" required>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Gender *</label>
+                    <select id="au-gender" class="form-control" required>
+                      <option value="">Select...</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Date of Birth *</label>
+                    <input id="au-dob" type="date" class="form-control" required>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Role *</label>
+                  <select id="au-role" class="form-control" required>
+                    <option value="">Select role...</option>
+                    <option value="telecaller">Telecaller</option>
+                    <option value="office">Office</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
+                <button id="btn-add-user" type="submit" class="btn btn-primary btn-full">+ Create User</button>
+              </form>
+
+              <!-- Password Reveal Box -->
+              <div id="password-reveal-box" class="password-reveal" style="display:none">
+                <div class="label">🔑 Generated Temporary Password</div>
+                <div class="pass" id="generated-password">——</div>
+                <div class="note">Share this password with the user. They will be prompted to set a new password on first login.</div>
+                <button class="btn btn-primary btn-sm" style="margin-top:0.75rem" onclick="copyPassword()">📋 Copy Password</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── VIEW USERS PAGE ── -->
+        <div id="admin-viewusers" class="admin-page" style="display:none">
+          <div class="page-header-row">
+            <div class="page-header"><h2>All Users</h2><p>Manage telecallers and office staff</p></div>
+            <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap">
+              <div class="search-bar">
+                <span class="search-icon">🔍</span>
+                <input type="text" placeholder="Search users..." oninput="filterUsersTable(this.value)">
+              </div>
+              <button class="btn btn-accent btn-sm" onclick="exportExcel()">⬇ Export CSV</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="table-wrap">
+              <table id="users-table">
+                <thead>
+                  <tr>
+                    <th>Name</th><th>Email</th><th>Phone</th><th>Role</th>
+                    <th>Status</th><th>Password</th><th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="users-table-body">
+                  <tr><td colspan="7" class="loading-overlay"><span class="spinner spinner-dark"></span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     MODAL: FEEDBACK FORM
+════════════════════════════════════════════════════════ -->
+<div id="modal-feedback" class="modal-overlay">
+  <div class="modal">
+    <div class="feedback-header">
+      <h3>📝 Call Feedback</h3>
+      <p id="fb-student-name">Student Name</p>
+    </div>
+    <div class="feedback-meta">
+      📱 <strong id="fb-student-mobile">—</strong>
+      &nbsp;·&nbsp; 🕐 <span id="fb-datetime">—</span>
+      <span style="font-size:0.75rem;color:var(--warning);margin-left:0.5rem">(auto, cannot edit)</span>
+    </div>
+    <div class="modal-body">
+      <div id="fb-error" class="alert alert-error" style="display:none">⚠ Error</div>
+
+      <div class="form-group">
+        <label>Call Status *</label>
+        <div class="status-options">
+          <input type="radio" class="status-option" name="fb-status" id="fb-accepted" value="accepted" onchange="onStatusChange('accepted')">
+          <label class="status-label" for="fb-accepted">✅ Accepted</label>
+
+          <input type="radio" class="status-option" name="fb-status" id="fb-rejected" value="rejected" onchange="onStatusChange('rejected')">
+          <label class="status-label" for="fb-rejected">❌ Rejected</label>
+
+          <input type="radio" class="status-option" name="fb-status" id="fb-other" value="other" onchange="onStatusChange('other')">
+          <label class="status-label" for="fb-other">📋 Other</label>
+        </div>
+      </div>
+
+      <!-- Reason (shown for 'other') -->
+      <div class="form-group" id="fb-reason-group" style="display:none">
+        <label>Reason / Notes *</label>
+        <input id="fb-reason" type="text" class="form-control" placeholder="e.g. Switch off, Not reachable, Call tomorrow...">
+        <div style="margin-top:0.4rem;display:flex;gap:0.5rem;flex-wrap:wrap">
+          <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('fb-reason').value='Switch off'">Switch off</button>
+          <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('fb-reason').value='Not reachable'">Not reachable</button>
+          <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('fb-reason').value='Told to call tomorrow'">Call tomorrow</button>
+          <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('fb-reason').value='Busy – call later'">Busy</button>
+          <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('fb-reason').value='Wrong number'">Wrong number</button>
+        </div>
+      </div>
+
+      <!-- Follow-up date (shown for 'other') -->
+      <div class="form-group" id="fb-follow-group" style="display:none">
+        <label>📅 Set Reminder Date</label>
+        <input id="fb-follow-date" type="date" class="form-control">
+        <p style="font-size:0.78rem;color:var(--text-muted);margin-top:0.3rem">System will remind you to call this student on the selected date.</p>
+      </div>
+
+      <!-- Follow-up date (shown for 'accepted' — optional) -->
+      <div class="form-group" id="fb-follow-group-accepted" style="display:none">
+        <label>📅 Schedule Follow-up (Optional)</label>
+        <input id="fb-follow-date-accepted" type="date" class="form-control">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-feedback')">Cancel</button>
+      <button id="btn-submit-feedback" class="btn btn-primary" onclick="submitFeedback()">Submit Feedback</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     MODAL: USER DETAIL (Admin)
+════════════════════════════════════════════════════════ -->
+<div id="modal-user-detail" class="modal-overlay">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-header">
+      <h3>User Details</h3>
+      <button class="modal-close" onclick="closeModal('modal-user-detail')">✕</button>
+    </div>
+    <div id="user-detail-body">
+      <div class="loading-overlay"><span class="spinner spinner-dark"></span></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-user-detail')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+
+<script src="assets/js/app.js"></script>
+<script>
+  // Filter users table
+  function filterUsersTable(val) {
+    const rows = document.querySelectorAll('#users-table-body tr');
+    rows.forEach(row => {
+      row.style.display = row.textContent.toLowerCase().includes(val.toLowerCase()) ? '' : 'none';
+    });
+  }
+
+  // Sync sidebar name for telecaller
+  setInterval(() => {
+    if (currentUser) {
+      const el = document.getElementById('tc-sidebar-name');
+      if (el) el.textContent = currentUser.name;
+    }
+  }, 500);
+
+  // Check reminders every minute when telecaller is active
+  setInterval(() => {
+    if (currentUser?.role === 'telecaller' && document.getElementById('screen-telecaller').classList.contains('active')) {
+      loadReminders();
+    }
+  }, 60000);
+</script>
+</body>
+</html>

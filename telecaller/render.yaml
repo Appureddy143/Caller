@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: telecaller-crm
+    env: php
+    buildCommand: "php seed_admin.php || true"
+    startCommand: "php -S 0.0.0.0:$PORT -t ."
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: PHP_VERSION
+        value: "8.2"
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: SAMEORIGIN
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: /api/*
