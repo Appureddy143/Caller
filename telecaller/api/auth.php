@@ -1,5 +1,6 @@
 <?php
 // api/auth.php
+session_start();
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
@@ -7,7 +8,7 @@ header('Access-Control-Allow-Headers: Content-Type');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') exit;
 
-require_once '../includes/config.php';
+require_once __DIR__ . '/../includes/config.php';
 
 $action = $_GET['action'] ?? '';
 
@@ -40,7 +41,6 @@ function handleLogin() {
 
     // Check if using system-generated password
     if ($user['is_first_login'] && $password === $user['system_password']) {
-        session_start();
         $_SESSION['temp_user_id'] = $user['id'];
         $_SESSION['temp_email']   = $user['email'];
         jsonResponse(['require_set_password' => true, 'user_id' => $user['id']]);
@@ -50,7 +50,6 @@ function handleLogin() {
         jsonResponse(['error' => 'Invalid credentials'], 401);
     }
 
-    session_start();
     $_SESSION['user_id'] = $user['id'];
     $_SESSION['name']    = $user['name'];
     $_SESSION['email']   = $user['email'];
@@ -92,7 +91,6 @@ function handleSetPassword() {
     $stmt2->execute([$user_id]);
     $user = $stmt2->fetch();
 
-    session_start();
     $_SESSION['user_id'] = $user['id'];
     $_SESSION['name']    = $user['name'];
     $_SESSION['email']   = $user['email'];
@@ -132,13 +130,11 @@ function handleForgotPassword() {
 }
 
 function handleLogout() {
-    session_start();
     session_destroy();
     jsonResponse(['success' => true]);
 }
 
 function handleCheckSession() {
-    session_start();
     if (!empty($_SESSION['user_id'])) {
         jsonResponse([
             'logged_in' => true,

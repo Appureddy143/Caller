@@ -1,8 +1,9 @@
 <?php
 // pages/telecaller.php
 session_start();
+require_once __DIR__ . '/../includes/config.php';
 if (empty($_SESSION['user_id']) || !in_array($_SESSION['role'], ['telecaller','office'])) {
-    header('Location: /'); exit;
+    header('Location: ' . BASE_URL . '/'); exit;
 }
 $userName = $_SESSION['name'];
 $userId   = $_SESSION['user_id'];
@@ -330,6 +331,7 @@ select.form-input option{background:#0d1525}
 </div>
 
 <script>
+const BASE = '<?php echo rtrim(BASE_URL, "/"); ?>';
 let allStudents = [];
 let currentStatus = '';
 const today = new Date().toISOString().split('T')[0];
@@ -345,8 +347,8 @@ document.addEventListener('click', e => {
 });
 
 async function doLogout() {
-  await fetch('/api/auth.php?action=logout',{method:'POST'});
-  window.location.href = '/';
+  await fetch(BASE + '/api/auth.php?action=logout',{method:'POST'});
+  window.location.href = BASE + '/';
 }
 
 // ─── TABS ──────────────────────────────────────────────────
@@ -362,7 +364,7 @@ function switchTab(tab, el) {
 
 // ─── LOAD STUDENTS ─────────────────────────────────────────
 async function loadStudents() {
-  const res  = await fetch('/api/students.php?action=my_list');
+  const res  = await fetch(BASE + '/api/students.php?action=my_list');
   const data = await res.json();
   allStudents = data.students || [];
 
@@ -526,7 +528,7 @@ async function submitFeedback() {
   btn.disabled=true; btn.innerHTML='<span class="spin"></span>Saving...';
 
   try {
-    const res = await fetch('/api/feedback.php?action=submit',{
+    const res = await fetch(BASE + '/api/feedback.php?action=submit',{
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
         student_id,

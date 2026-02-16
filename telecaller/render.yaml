@@ -9,9 +9,10 @@ services:
     region: singapore                 # or: ohio, oregon, frankfurt, virginia
     branch: main                      # GitHub branch to deploy from
 
-    # PHP built-in server (Render supports PHP natively)
-    buildCommand: ""                  # No build step needed for pure PHP
-    startCommand: php -S 0.0.0.0:$PORT -t .
+    # PHP built-in server with router.php for correct URL routing
+    # (.htaccess is Apache-only; router.php replicates it for php -S)
+    buildCommand: ""
+    startCommand: php -S 0.0.0.0:$PORT router.php
 
     # Health check
     healthCheckPath: /index.php

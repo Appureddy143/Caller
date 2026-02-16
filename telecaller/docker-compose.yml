@@ -1,0 +1,57 @@
+# ============================================================
+#  AdmissionConnect — docker-compose.yml
+#  For LOCAL development only.
+#  Database is Neon PostgreSQL (external cloud) — not local.
+# ============================================================
+#
+#  USAGE:
+#    1. Fill in your Neon credentials in the .env file
+#    2. Run:  docker-compose up --build
+#    3. Open: http://localhost:8080
+#    4. Stop: docker-compose down
+#
+#  NOTE: Uses Apache inside the container (not php -S).
+#        .htaccess routing works correctly inside Docker.
+#
+# ============================================================
+
+version: "3.9"
+
+services:
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: admissionconnect_app
+    restart: unless-stopped
+    ports:
+      - "8080:80"         # Access at http://localhost:8080
+
+    # Load all variables from your .env file
+    env_file:
+      - .env
+
+    # Override / add extra vars for Docker environment
+    environment:
+      APP_URL: "http://localhost:8080"
+      APP_NAME: "AdmissionConnect"
+
+    volumes:
+      # Live-reload: mount source files so changes reflect instantly
+      # Remove this in production image builds
+      - .:/var/www/html
+      # Persist Apache logs
+      - apache_logs:/var/log/apache2
+
+    # Health check — waits for Apache to be ready
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+# ── Named volumes ─────────────────────────────────────────────
+volumes:
+  apache_logs:

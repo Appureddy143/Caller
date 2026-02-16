@@ -1,8 +1,9 @@
 <?php
 // pages/admin.php
 session_start();
+require_once __DIR__ . '/../includes/config.php';
 if (empty($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    header('Location: /'); exit;
+    header('Location: ' . BASE_URL . '/'); exit;
 }
 $adminName = $_SESSION['name'];
 ?>
@@ -522,6 +523,7 @@ select.form-input option{background:#0d1525}
 </div>
 
 <script>
+const BASE = '<?php echo rtrim(BASE_URL, "/"); ?>';
 // ─── NAVIGATION ───────────────────────────────────────────
 const pageTitles = {
   'dashboard':'Dashboard', 'add-student':'Add Student',
@@ -563,16 +565,16 @@ function closeModal(id) { document.getElementById(id).classList.remove('show') }
 function openModal(id)  { document.getElementById(id).classList.add('show')    }
 
 async function doLogout() {
-  await fetch('/api/auth.php?action=logout', {method:'POST'});
-  window.location.href = '/';
+  await fetch(BASE + '/api/auth.php?action=logout', {method:'POST'});
+  window.location.href = BASE + '/';
 }
 
 // ─── DASHBOARD ────────────────────────────────────────────
 async function loadDashboard() {
   try {
     const [summary, tcStats] = await Promise.all([
-      fetch('/api/students.php?action=summary').then(r=>r.json()),
-      fetch('/api/users.php?action=stats').then(r=>r.json())
+      fetch(BASE + '/api/students.php?action=summary').then(r=>r.json()),
+      fetch(BASE + '/api/users.php?action=stats').then(r=>r.json())
     ]);
     document.getElementById('s-total').textContent     = summary.total     || 0;
     document.getElementById('s-accepted').textContent  = summary.accepted  || 0;
@@ -613,7 +615,7 @@ async function loadDashboard() {
 }
 
 async function viewTcStudents(tcId, tcName) {
-  const res  = await fetch(`/api/students.php?action=list&assigned_to=${tcId}`);
+  const res  = await fetch(`${BASE}/api/students.php?action=list&assigned_to=${tcId}`);
   const data = await res.json();
   document.getElementById('sd-title').textContent = `Students — ${tcName}`;
   const body = document.getElementById('sd-body');
@@ -648,7 +650,7 @@ async function loadStudents() {
   const tbody = document.getElementById('students-tbody');
   tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:2rem">Loading...</td></tr>';
 
-  const data = await fetch('/api/students.php?' + params).then(r=>r.json());
+  const data = await fetch(BASE + '/api/students.php?' + params).then(r=>r.json());
   if (!data.length) {
     tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:2rem">No students found</td></tr>';
     return;
@@ -671,14 +673,14 @@ async function loadStudents() {
 }
 
 async function loadTcFilter() {
-  const tcs = await fetch('/api/users.php?action=telecallers').then(r=>r.json());
+  const tcs = await fetch(BASE + '/api/users.php?action=telecallers').then(r=>r.json());
   const sel = document.getElementById('student-tc-filter');
   sel.innerHTML = '<option value="">All Telecallers</option>' +
     tcs.map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join('');
 }
 
 async function viewStudentDetail(id) {
-  const data = await fetch(`/api/students.php?action=detail&id=${id}`).then(r=>r.json());
+  const data = await fetch(`${BASE}/api/students.php?action=detail&id=${id}`).then(r=>r.json());
   document.getElementById('sd-title').textContent = data.name;
   document.getElementById('sd-body').innerHTML = `
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.25rem">
@@ -709,7 +711,7 @@ async function viewStudentDetail(id) {
 let tcList = [];
 async function openReassign(studentId) {
   document.getElementById('ra-student-id').value = studentId;
-  if (!tcList.length) tcList = await fetch('/api/users.php?action=telecallers').then(r=>r.json());
+  if (!tcList.length) tcList = await fetch(BASE + '/api/users.php?action=telecallers').then(r=>r.json());
   document.getElementById('ra-tc-select').innerHTML = tcList.map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join('');
   openModal('reassign-modal');
 }
@@ -717,7 +719,7 @@ async function openReassign(studentId) {
 async function doReassign() {
   const student_id = parseInt(document.getElementById('ra-student-id').value);
   const user_id    = parseInt(document.getElementById('ra-tc-select').value);
-  await fetch('/api/students.php?action=assign',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({student_id,user_id})});
+  await fetch(BASE + '/api/students.php?action=assign',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({student_id,user_id})});
   closeModal('reassign-modal');
   loadStudents();
 }
@@ -736,7 +738,7 @@ async function addStudent() {
   btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Adding...';
 
   try {
-    const res = await fetch('/api/students.php?action=add',{
+    const res = await fetch(BASE + '/api/students.php?action=add',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({name,mobile,college_type:ctype,present_college:college,address})
     });
@@ -761,7 +763,7 @@ async function loadUsers() {
   const tbody  = document.getElementById('users-tbody');
   tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:2rem">Loading...</td></tr>';
 
-  let data = await fetch('/api/users.php?action=list').then(r=>r.json());
+  let data = await fetch(BASE + '/api/users.php?action=list').then(r=>r.json());
   if (search) data = data.filter(u=>u.name.toLowerCase().includes(search)||u.email.toLowerCase().includes(search));
   if (roleF)  data = data.filter(u=>u.role===roleF);
 
@@ -794,7 +796,7 @@ async function addUser() {
   btn.disabled=true; btn.innerHTML='<span class="spin"></span>Creating...';
 
   try {
-    const res  = await fetch('/api/users.php?action=add',{
+    const res  = await fetch(BASE + '/api/users.php?action=add',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({name,email,phone,role,gender,dob})
     });
@@ -810,12 +812,12 @@ async function addUser() {
 
 async function deleteUser(id, name) {
   if (!confirm(`Delete user "${name}"? This cannot be undone.`)) return;
-  await fetch(`/api/users.php?action=delete&id=${id}`, {method:'POST'});
+  await fetch(`${BASE}/api/users.php?action=delete&id=${id}`, {method:'POST'});
   loadUsers();
 }
 
 function exportExcel() {
-  window.location.href = '/api/students.php?action=export';
+  window.location.href = BASE + '/api/students.php?action=export';
 }
 
 // ─── HELPERS ──────────────────────────────────────────────
