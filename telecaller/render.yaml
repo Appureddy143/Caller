@@ -1,21 +1,68 @@
+# render.yaml — Render.com deployment configuration
+# Docs: https://render.com/docs/render-yaml-spec
+
 services:
   - type: web
-    name: telecaller-crm
+    name: admissionconnect
     env: php
-    buildCommand: "php seed_admin.php || true"
-    startCommand: "php -S 0.0.0.0:$PORT -t ."
+    plan: free                        # Change to 'starter' for production
+    region: singapore                 # or: ohio, oregon, frankfurt, virginia
+    branch: main                      # GitHub branch to deploy from
+
+    # PHP built-in server (Render supports PHP natively)
+    buildCommand: ""                  # No build step needed for pure PHP
+    startCommand: php -S 0.0.0.0:$PORT -t .
+
+    # Health check
+    healthCheckPath: /index.php
+
+    # Environment variables
+    # Set these in Render Dashboard > Environment after first deploy
+    # OR define them here (avoid hardcoding secrets — use sync:false)
     envVars:
-      - key: DATABASE_URL
-        sync: false
-      - key: JWT_SECRET
-        generateValue: true
+      # ── Neon PostgreSQL ──────────────────────────────────
+      - key: DB_HOST
+        sync: false          # Fill in Render dashboard: ep-xxx.neon.tech
+      - key: DB_PORT
+        value: "5432"
+      - key: DB_NAME
+        sync: false          # Fill in Render dashboard: neondb
+      - key: DB_USER
+        sync: false          # Fill in Render dashboard: neondb_owner
+      - key: DB_PASS
+        sync: false          # Fill in Render dashboard: your password (secret)
+
+      # ── Application ──────────────────────────────────────
+      - key: APP_NAME
+        value: AdmissionConnect
+      - key: APP_URL
+        sync: false          # Fill after first deploy: https://your-app.onrender.com
+
+      # ── Session ──────────────────────────────────────────
+      - key: SESSION_SECRET
+        generateValue: true  # Render auto-generates a secure random string
+
+      # ── PHP Version ──────────────────────────────────────
       - key: PHP_VERSION
         value: "8.2"
+
+    # Security headers
     headers:
       - path: /*
         name: X-Frame-Options
         value: SAMEORIGIN
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+
+    # Block direct access to sensitive directories
     routes:
-      - type: rewrite
-        source: /api/*
-        destination: /api/*
+      - type: redirect
+        source: /includes/*
+        destination: /
+      - type: redirect
+        source: /.env
+        destination: /

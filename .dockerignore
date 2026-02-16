@@ -1,0 +1,50 @@
+# ============================================================
+#  .dockerignore — Exclude files from Docker build context
+# ============================================================
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Environment files (secrets — never bake into image)
+# Pass via --env-file or Render/Docker env vars instead
+.env
+.env.local
+.env.*.local
+
+# Docker files themselves
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Documentation
+README.md
+*.md
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+*.cache
+
+# Render config (not needed inside container)
+render.yaml
